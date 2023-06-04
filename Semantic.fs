@@ -44,12 +44,10 @@ type ValueBlockState = {
         member this.getValueName valueName =
             if this.values.ContainsKey valueName then
                 Some(this.values[valueName])
-            else if this.parent.IsSome then
+            else
                 match this.parent with
                 | Some parent -> parent.getValueName valueName
                 | None -> None
-            else
-                None
                 
         member this.getSetNextLabel label =
             if this.labels.Contains label then
@@ -72,25 +70,20 @@ type ValueBlockState = {
                 
             
 let initValueBlockState parent : ValueBlockState =
-    let lastRegisterNumber =
+    let lastRegisterNumber, innerValuesName, labels =
         parent
-        |> Option.map(fun p -> p.lastRegisterNumber)
-        |> Option.defaultValue 0UL
-        
-    let innerValuesName = 
-        parent
-        |> Option.map(fun p -> p.innerValuesName)
-        |> Option.defaultValue(HashSet())
-        
-    let labels = 
-        parent
-        |> Option.map(fun p -> p.labels)
-        |> Option.defaultValue(HashSet())
+        |> Option.map(fun p ->
+            (
+                p.lastRegisterNumber,
+                p.innerValuesName,
+                p.labels
+            ))
+        |> Option.defaultValue (0UL, HashSet(), HashSet())
             
     {
-        values              = Dictionary()
-        innerValuesName   = innerValuesName
-        labels              = labels
+        values = Dictionary()
+        innerValuesName= innerValuesName
+        labels = labels
         lastRegisterNumber = lastRegisterNumber
-        parent              = parent
+        parent = parent
     }
