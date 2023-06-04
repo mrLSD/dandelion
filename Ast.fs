@@ -5,8 +5,10 @@ type Ident = {
 }
     
 type ConstantName = {
-    ident: Ident
-}
+        ident: Ident
+    } with
+    member this.getName =
+        this.ident.span
 
 type FunctionName = {
     ident: Ident
@@ -67,6 +69,8 @@ type Type =
     | Primitive of PrimitiveTypes
     | Struct of StructTypes
     | Array of Type * uint32
+    member this.getName =
+        ""
 
 and StructType = {
     attrName: Ident
@@ -141,10 +145,12 @@ type ConstantExpression = {
 }
 
 type Constant = {
-    name: ConstantName 
-    constant_type: Type
-    constant_value: ConstantExpression
-}
+        name: ConstantName 
+        constant_type: Type
+        constant_value: ConstantExpression
+    } with
+    member this.getName =
+        this.name.getName   
 
 type FunctionParameter = {
     name: ParameterName

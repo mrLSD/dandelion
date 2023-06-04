@@ -8,6 +8,28 @@ open dandeiion.Ast
 type ValueName = string
 type  InnerType = string
 
+type StateErrorKind = 
+    | ConstantAlreadyExist
+    | TypeAlreadyExist
+    | FunctionAlreadyExist
+    | ValueNotFound
+    | FunctionNotFound
+    | ReturnNotFound
+    
+
+type StateErrorLocation = {
+    line: uint64
+    column: uint64
+}
+
+type StateErrorResult = {
+    kind: StateErrorKind
+    value: string
+    location: StateErrorLocation
+}
+type StateResult<'T> = Result<'T, StateErrorResult>
+type StateResults<'T> = Result<'T, StateErrorResult[]>
+
 [<Struct>]
 type Constant = {
     name: string
@@ -121,8 +143,24 @@ type State = {
 } with
     member this.types(data: StructTypes) =
         if this.globalState.types.Contains data.getName then
-            Error "Some"
+            Error  {
+                kind = StateErrorKind.TypeAlreadyExist
+                value = ""
+                location = { line = 0UL; column = 0UL } 
+            }
         else
             this.globalState.types.Add data.getName |> ignore
             this.codegen.setType data
+            Ok ()
+            
+    member this.constant(data: Ast.Constant) =
+        if this.globalState.constants.ContainsKey data.getName then
+            Error  {
+                kind = StateErrorKind.ConstantAlreadyExist
+                value = ""
+                location = { line = 0UL; column = 0UL } 
+            }
+        else
+            this.globalState.constants.Add(data.getName, { name  = data.getName; innerType = data.constant_type.getName })
+            this.codegen.setConstant data
             Ok ()
