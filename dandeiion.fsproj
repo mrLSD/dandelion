@@ -6,6 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Ast.fs" />
+        <Compile Include="Codegen.fs" />
         <Compile Include="Semantic.fs" />        
         <Compile Include="Program.fs" />
     </ItemGroup>
