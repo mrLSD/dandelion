@@ -3,12 +3,6 @@ module dandeiion.Ast
 type Ident = {
     span: string
 }
-
-type IGetName =
-    abstract member getName: string
-
-type IGetType =
-    abstract member getType: string
     
 type ConstantName = {
     ident: Ident
@@ -22,14 +16,20 @@ type ParameterName = {
     ident: Ident
 }
 
-type ValueName =
-    {
+type ValueName = {
         ident: Ident
-    }
-    interface IGetName with
-        member this.getName =
-            this.ident.span
+    } with
+    member this.getName =
+        this.ident.span
 
+
+type ImportName = {
+        ident: Ident
+    } with
+    member this.getName =
+        this.ident.span
+
+type ImportPath = ImportName[]
 
 type PrimitiveTypes =
     | U8 
@@ -46,24 +46,22 @@ type PrimitiveTypes =
     | Char
     | String
     | None
-    interface IGetName with
-        member this.getName =
-            match this with
-            | U8 -> "u8"
-            | U16 -> "u16"
-            | U32 -> "u32"
-            | U64 -> "u64"
-            | I8 -> "i8"
-            | I16 -> "i16"
-            | I32 -> "i32"
-            | I64 -> "i64"
-            | F32 -> "f32"
-            | F64 -> "f64"
-            | Bool -> "bool"
-            | Char -> "char"
-            | String -> "string"
-            | None -> "()"
-
+    member this.getName =
+        match this with
+        | U8 -> "u8"
+        | U16 -> "u16"
+        | U32 -> "u32"
+        | U64 -> "u64"
+        | I8 -> "i8"
+        | I16 -> "i16"
+        | I32 -> "i32"
+        | I64 -> "i64"
+        | F32 -> "f32"
+        | F64 -> "f64"
+        | Bool -> "bool"
+        | Char -> "char"
+        | String -> "string"
+        | None -> "()"
 
 type Type =
     | Primitive of PrimitiveTypes
@@ -184,3 +182,63 @@ type ExpressionLogicCondition = {
 type IfCondition =
     | Single of Expression
     | Logic of ExpressionLogicCondition
+
+type IfStatement = {
+    condition: IfCondition
+    body: IfBodyStatement
+    else_statement: IfBodyStatement[] option
+    else_if_statement: IfStatement[] option
+}
+
+and IfBodyStatement =
+    | LetBinding of LetBinding
+    | FunctionCall of FunctionCall
+    | If of IfStatement
+    | Loop of LoopBodyStatement[]
+    | Return of Expression
+
+and LoopBodyStatement =
+    | LetBinding of LetBinding
+    | FunctionCall of FunctionCall
+    | IfLoop of IfLoopStatement
+    | Loop of LoopBodyStatement[]
+    | Return of Expression
+    | Break
+    | Continue
+
+and IfLoopStatement = {
+    condition: IfCondition
+    body: IfLoopBodyStatement[]
+    else_statement: IfLoopBodyStatement[] option
+    else_if_statement: IfLoopStatement[] option
+}
+
+and IfLoopBodyStatement =
+    | LetBinding of LetBinding
+    | FunctionCall of FunctionCall
+    | IfLoop of IfLoopStatement
+    | Loop of LoopBodyStatement[]
+    | Return of Expression
+    | Break
+    | Continue
+
+type BodyStatement =
+    | LetBinding of LetBinding
+    | FunctionCall of FunctionCall
+    | If of IfStatement
+    | Loop of LoopBodyStatement[]
+    | Expression of Expression
+    | Return of Expression
+    
+type FunctionStatement = {
+    name: FunctionName
+    parameters: FunctionParameter[]
+    result_type: Type
+    body: BodyStatement[]
+}
+
+type MainStatement =
+    | Import of ImportPath
+    | Constant of Constant
+    | Types of StructTypes
+    | Function of FunctionStatement

@@ -123,6 +123,6 @@ type State = {
         if this.globalState.types.Contains data.getName then
             Error "Some"
         else
-            this.globalState.types.Add "" |> ignore
+            this.globalState.types.Add data.getName |> ignore
             this.codegen.setType data
             Ok ()
