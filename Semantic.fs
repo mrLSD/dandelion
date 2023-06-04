@@ -67,7 +67,19 @@ type ValueBlockState = {
                 else
                     this.labels.Add name |> ignore
                     name
-                
+                    
+        member this.getNextInnerName(name: string): string =
+            let nameAttr = name.Split "."
+            let newName =
+                if nameAttr.Length = 2 then
+                    let count = System.UInt64.Parse nameAttr[1]
+                    $"{nameAttr[0]}.{count + 1UL}"
+                else
+                    $"{nameAttr[0]}.0"
+            if this.innerValuesName.Contains newName then
+                this.getNextInnerName newName
+            else
+                newName           
             
 let initValueBlockState parent : ValueBlockState =
     let lastRegisterNumber, innerValuesName, labels =
@@ -87,3 +99,23 @@ let initValueBlockState parent : ValueBlockState =
         lastRegisterNumber = lastRegisterNumber
         parent = parent
     }
+    
+type Function = {
+    innerName: string
+    innerType: InnerType
+    parameters: InnerType[]
+}
+
+type GlobalState = {
+    constants: Dictionary<string, Constant>
+    types: HashSet<InnerType>
+    functions: Dictionary<string, Function>
+}
+
+type ICodegen =
+    abstract member setConstant: Constant
+
+type State = {
+    globalState: GlobalState
+    codegen: ICodegen
+}
