@@ -11,8 +11,10 @@ type ConstantName = {
         this.ident.span
 
 type FunctionName = {
-    ident: Ident
-}
+        ident: Ident
+    } with
+    member this.getName =
+        this.ident.span
 
 type ParameterName = {
     ident: Ident
@@ -154,7 +156,7 @@ type Constant = {
 
 type FunctionParameter = {
     name: ParameterName
-    parameter_type: Type
+    parameterType: Type
 }
 
 type LetBinding = {
@@ -237,11 +239,13 @@ type BodyStatement =
     | Return of Expression
     
 type FunctionStatement = {
-    name: FunctionName
-    parameters: FunctionParameter[]
-    result_type: Type
-    body: BodyStatement[]
-}
+        name: FunctionName
+        parameters: FunctionParameter[]
+        resultType: Type
+        body: BodyStatement[]
+    } with
+    member this.getName =
+        this.name.getName
 
 type MainStatement =
     | Import of ImportPath

@@ -1,9 +1,7 @@
 module dandeiion.Semantic
 
-open Ast
 open Codegen
 open System.Collections.Generic
-open dandeiion.Ast
 
 type ValueName = string
 type  InnerType = string
@@ -141,7 +139,7 @@ type State = {
     globalState: GlobalState
     codegen: ICodegen
 } with
-    member this.types(data: StructTypes) =
+    member this.types(data: Ast.StructTypes) =
         if this.globalState.types.Contains data.getName then
             Error  {
                 kind = StateErrorKind.TypeAlreadyExist
@@ -163,4 +161,20 @@ type State = {
         else
             this.globalState.constants.Add(data.getName, { name  = data.getName; innerType = data.constant_type.getName })
             this.codegen.setConstant data
+            Ok ()
+
+    member this.functions(data: Ast.FunctionStatement) =
+        if this.globalState.functions.ContainsKey data.getName then
+            Error  {
+                kind = StateErrorKind.FunctionAlreadyExist
+                value = ""
+                location = { line = 0UL; column = 0UL } 
+            }
+        else
+            this.globalState.functions.Add(data.getName, {
+                innerName  = data.getName
+                innerType = data.resultType.getName
+                parameters = Array.map (fun (p: Ast.FunctionParameter) -> p.parameterType.getName) data.parameters
+            })
+            this.codegen.setFunction data
             Ok ()
