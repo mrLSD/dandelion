@@ -178,3 +178,14 @@ type State = {
             })
             this.codegen.setFunction data
             Ok ()
+            
+    member this.functionBody(data: Ast.FunctionStatement) =
+        let state = initValueBlockState None
+        let results =
+            Array.map (fun body ->
+                body
+            ) data.body
+        Ok(())
+        
+member this.functionCall(data: Ast.FunctionCall, state: ValueBlockState) =
+        Ok(())
