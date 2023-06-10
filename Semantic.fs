@@ -187,5 +187,18 @@ type State = {
             ) data.body
         Ok(())
         
-member this.functionCall(data: Ast.FunctionCall, state: ValueBlockState) =
-        Ok(())
+    member this.functionCall(data: Ast.FunctionCall, bodyState: ValueBlockState) =
+            if not (this.globalState.functions.ContainsKey data.getName) then
+                Error  {
+                    kind = StateErrorKind.FunctionNotFound
+                    value = ""
+                    location = { line = 0UL; column = 0UL } 
+                }                
+            else
+                let paramsAttr =
+                    Array.map (fun p -> this.expression(p, bodyState)) data.parameters
+                let bodyState = bodyState.incRegister
+                Ok(())
+
+    member this.expression(data: Ast.Expression, bodyState: ValueBlockState): string =
+        ""

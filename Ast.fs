@@ -132,9 +132,11 @@ type ExpressionValue =
     | FunctionCall of FunctionCall
 
 and FunctionCall = {
-    name: FunctionName
-    parameters: Expression[]    
-}
+        name: FunctionName
+        parameters: Expression[]    
+    } with
+    member this.getName =
+        this.name.getName
 
 and Expression = {
     expression_value: ExpressionValue
